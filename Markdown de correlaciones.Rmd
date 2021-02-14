@@ -1,0 +1,109 @@
+---
+title: "Correlaciones"
+author: "Carlos Puma"
+date: "5/2/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Correlaciones 
+Pueden ser positivas o negativas, estas tienen 3 interpretaciones
+las positivas, negativas y las que no tienen correlaciones o espurias.
+Se debe tener en cuenta que las correlaciones en puntiación serian  +1,0,-1
+Mientras las correlaciones que se hagan no tengan resultados como 0 o que tengan
+medidas de 0.01,0.1,-0.01,-0.1 etc, osea que sean bajos ya sea positivo o negativosignifica que no hay correlaciones o estan son bajas, pero mientras los resultadosobtenidos sean cercanos a 1 o -1 hay alta correlación.
+
+Relaciones del grado de correlación esto es para negativa como positiva
+ 0 = trivial
+ 0 - 0.1 = baja
+ 0.1 - 0.3 = pequeña
+ 0.3 - 0.5 = moderada
+ 0.5 - 0.7 = grande
+ 0.7 - 0.9 = muy grande
+ 0.9 - 1 = casi perfecta
+ 
+Para hacer correlaciones en Rstudio primero tenemos que tener la función Ipak,
+esta nos permitira llamar a los diferentes paquetes para trabajar
+```{r}
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+```
+
+Ahora formamos lo que es el conjunto de los diferentes paquetes para trabajar
+```{r}
+packages <- c("foreign","apaTables","PerformanceAnalytics","psych","corrr",
+              "readr","readxl","corrplot","ggcorrplot","ggplot2","dplyr")
+```
+
+Despues vamos a instalarlo 
+```{r}
+ipak(packages)
+```
+
+Para llamar la base de datos se utiliza esta función file.choose, esta nos 
+dara la ubicación de donde encontrar la raiz de nuestra base de datos 
+(spss, excel, csv). Luego tenemos que leerlo esto formando un nombre y con 
+read.spss, read.excel, read.csv etc. Pegando la raiz que obtuvimos con file
+```{r}
+easis<-read_xlsx("D:\\PRACTICA DEL PROGRAMA R\\EASISSSSSSSSSSSSSSSSSSSSSSSSS.xlsx")
+```
+
+Despues de ya tener la base de datos hay que verificar que sea un data frame
+con las filas y columnas correctas y claro los casos perdidos que se tenga en
+la base de datos para esto se utiliza la siguiente función
+```{r}
+easis1<- easis[complete.cases(easis), ]
+```
+
+Antes de hacer la correlación se tiene que poner la función option, ya que
+en algunos casos se omiten datos y esta función resuelve ese error
+```{r}
+options(max.print = 100000)
+```
+
+Ya con esto se puede hacer las correlaciones debidas con la función cor y claro 
+podemos ponerlo en una sección, aqui tambien podemos agregar lo que es el metodo
+que puede ser pearson, sperman, kendall con la función methot
+```{r}
+cor(easis1)
+correlacion <- cor(easis1)
+correlacion <- round(correlacion, digits = 2)
+```
+
+Con la función apa.tables se puede hacer directamente la tabla con la descripción
+de las correlaciones
+```{r}
+apa.cor.table(easis1, filename = "correlaciones", table.number = 2,show.conf.interval = FALSE, landscape = TRUE)
+```
+
+GRÁFICAS
+
+Ahora podemos ver las diferentes formas de visualizar los datos para ver los
+resultados 
+
+```{r}
+pairs.panels(easis1, pch=20,stars=TRUE,main="correlaciones")
+cor.plot(easis1)
+```
+
+Para hacer la grafica de calor se debe hacer con la función corrplot, pero este
+se hace con la matriz de correlacion, pero este tiene que tener nombres cortos,
+por ejemplo R1,I1 si no tiene no podrá leer los datos
+```{r}
+corrplot(correlacion, method = "circle", order = "AOE", tl.col = "black",
+         addCoef.col = "black")
+```
+
+Para hablar lo que es la normalidad, los p-value de las prueba o variables se
+utilizan las funciones
+```{r}
+qqnorm()
+qqline()
+cor.mtest()
+```
+
